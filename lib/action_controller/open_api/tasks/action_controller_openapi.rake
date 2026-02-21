@@ -70,8 +70,8 @@ namespace :action_controller_openapi do
 
     redoc_js = File.read(
       File.expand_path(
-        "../../document_page/app/assets/javascripts/redoc.standalone.js",
-        __FILE__
+        "../document_page/app/assets/javascripts/redoc.standalone.js",
+        __dir__
       )
     )
 

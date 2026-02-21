@@ -1,0 +1,121 @@
+plugins:
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.7
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - "test/dummy/**/*"
+    - "lib/action_controller/open_api/document_page/app/assets/**/*"
+
+# ---- Syntax / compatibility (the main point) ----
+# These fire when code uses syntax unavailable in TargetRubyVersion.
+# Enabled by default; listed explicitly for visibility.
+Lint/DeprecatedConstants:
+  Enabled: true
+Lint/LambdaWithoutLiteralBlock:
+  Enabled: true
+Lint/NumberedParameterAssignment:
+  Enabled: true
+Lint/OrAssignmentToConstant:
+  Enabled: true
+Lint/SymbolConversion:
+  Enabled: true
+Lint/TripleQuotes:
+  Enabled: true
+Style/HashExcept:
+  Enabled: true
+
+# ---- Disabled: style noise irrelevant to compatibility ----
+Style/Documentation:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/StringLiterals:
+  Enabled: false
+Style/StringLiteralsInInterpolation:
+  Enabled: false
+
+# ---- Disabled: metrics that flag intentionally complex methods ----
+Metrics/MethodLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+
+# ---- Disabled: file naming convention doesn't match the gem entry point ----
+Naming/FileName:
+  Enabled: false
+
+# ---- Disabled: to_json signature (intentional API) ----
+Lint/ToJSON:
+  Enabled: false
+
+# ---- Disabled: line length (desc strings in rake tasks are long) ----
+Layout/LineLength:
+  Enabled: false
+
+# ---- Disabled: RSpec instance variables used intentionally with Dir.mktmpdir ----
+RSpec/InstanceVariable:
+  Enabled: false
+
+# ---- Disabled: style preferences not related to compatibility ----
+Style/MutableConstant:
+  Enabled: false
+Style/WordArray:
+  Enabled: false
+Style/SymbolArray:
+  Enabled: false
+Style/IfUnlessModifier:
+  Enabled: false
+Naming/AccessorMethodName:
+  Enabled: false
+
+# ---- Disabled: layout preferences ----
+Layout/ArgumentAlignment:
+  Enabled: false
+Layout/MultilineMethodCallBraceLayout:
+  Enabled: false
+
+# ---- Disabled: RSpec style preferences ----
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/ContextWording:
+  Enabled: false
+RSpec/DescribeClass:
+  Enabled: false
+RSpec/NamedSubject:
+  Enabled: false
+RSpec/SpecFilePathFormat:
+  Enabled: false
+RSpec/SpecFilePathSuffix:
+  Enabled: false
+RSpec/VerifiedDoubles:
+  Enabled: false
+RSpec/MultipleDescribes:
+  Enabled: false
+RSpec/DescribedClass:
+  Enabled: false
+RSpec/AnyInstance:
+  Enabled: false
+RSpec/ReceiveMessages:
+  Enabled: false
+RSpec/BeNil:
+  Enabled: false
+Style/BlockDelimiters:
+  Enabled: false
+Lint/EmptyBlock:
+  Enabled: false
+Layout/SpaceInsideBlockBraces:
+  Enabled: false

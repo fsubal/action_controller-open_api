@@ -61,6 +61,7 @@ module ActionController
       def resolve_schema(schema)
         ref = schema["$ref"]
         return schema unless ref&.start_with?("#/$defs/")
+
         name = ref.delete_prefix("#/$defs/")
         @defs[name] || schema
       end
@@ -100,15 +101,12 @@ module ActionController
       end
 
       def validate_json_body(request, json_schema)
-        body = begin
-          raw = request.body.read
-          JSON.parse(raw.empty? ? "{}" : raw)
-        rescue JSON::ParserError => e
-          return [{ "error" => "Invalid JSON in request body: #{e.message}" }]
-        ensure
-          request.body.rewind
-        end
+        raw = request.body.read
+        request.body.rewind
+        body = JSON.parse(raw.empty? ? "{}" : raw)
         validate_with_json_schemer(body, json_schema)
+      rescue JSON::ParserError => e
+        [{ "error" => "Invalid JSON in request body: #{e.message}" }]
       end
 
       def validate_form_body(request, form_schema)

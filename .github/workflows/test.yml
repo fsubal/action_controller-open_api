@@ -26,3 +26,7 @@ jobs:
 
       - name: Run tests
         run: bundle exec rspec
+
+      - name: Run RuboCop
+        run: bundle exec rubocop --no-color lib spec
+        if: matrix.ruby-version == '3.3'

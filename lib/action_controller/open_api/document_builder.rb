@@ -82,8 +82,11 @@ module ActionController
         case obj
         when Hash
           obj.each_with_object({}) do |(k, v), h|
-            h[k] = (k == "$ref" && v.is_a?(String) && v.start_with?("#/$defs/")) ?
-              v.sub("#/$defs/", "#/components/schemas/") : rewrite_refs(v)
+            h[k] = if k == "$ref" && v.is_a?(String) && v.start_with?("#/$defs/")
+                     v.sub("#/$defs/", "#/components/schemas/")
+                   else
+                     rewrite_refs(v)
+                   end
           end
         when Array then obj.map { |v| rewrite_refs(v) }
         else obj
