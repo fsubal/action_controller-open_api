@@ -2,8 +2,10 @@ module ActionController
   module OpenApi
     module DocumentPage
       class DocumentsController < ::ActionController::Base
+        skip_forgery_protection only: :redoc_js
+
         REDOC_JS_PATH = File.expand_path(
-          "../../assets/javascripts/redoc.standalone.js",
+          "../../../../assets/javascripts/redoc.standalone.js",
           __dir__
         )
 
