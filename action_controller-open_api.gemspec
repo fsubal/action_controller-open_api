@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "railties", ">= 6.0"
   spec.add_dependency "actionpack", ">= 6.0"
+  spec.add_dependency "json_schemer", ">= 2.0"
 
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"

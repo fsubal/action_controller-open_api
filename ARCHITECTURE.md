@@ -37,6 +37,10 @@ class ItemsController < ApplicationController
         # ...
     end
 end
+
+class ApplicationController < ActionController::Base
+    include ActionController::OpenApi::ControllerMethods
+end
 ```
 
 URLパラメータやリクエストボディがおかしい場合は bad_request を返し、レスポンスがスキーマにマッチしない場合は500を返します（いずれの場合も独自の例外をraiseするので、ユーザーランドでrescueすることも可能）
@@ -49,7 +53,7 @@ URLパラメータやリクエストボディがおかしい場合は bad_reques
 
 以下のようにルーティングにマウントすると、ランタイムで `.schema.json` を収集して Redoc をレンダリングします。主にdevelopment用です。
 
-```
+```ruby
 mount ActionController::OpenApi::DocumentPage, at: "/admin/openapi"
 ```
 
