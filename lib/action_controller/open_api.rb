@@ -2,6 +2,7 @@ require "json"
 require "yaml"
 require "pathname"
 require "json_schemer"
+require "active_support/concern"
 
 require "action_controller/open_api/version"
 require "action_controller/open_api/errors"
