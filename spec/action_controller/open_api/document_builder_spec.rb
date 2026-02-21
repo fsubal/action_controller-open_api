@@ -145,6 +145,103 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       expect(operation["parameters"]).to eq schema["parameters"]
       expect(operation["requestBody"]).to eq schema["requestBody"]
     end
+
+    context "with $defs" do
+      let(:item_def) do
+        {
+          "type" => "object",
+          "required" => ["id", "name"],
+          "properties" => {
+            "id" => { "type" => "integer" },
+            "name" => { "type" => "string" }
+          }
+        }
+      end
+
+      it "hoists $defs into components/schemas" do
+        schema = {
+          "$defs" => { "Item" => item_def },
+          "responses" => {
+            "200" => {
+              "content" => {
+                "application/json" => { "schema" => { "$ref" => "#/$defs/Item" } }
+              }
+            }
+          }
+        }
+        create_schema("items/_index.schema.json", JSON.generate(schema))
+        with_rails_routes { get "/items", to: "items#index" }
+
+        doc = described_class.new(view_paths: [@tmpdir]).as_json
+
+        expect(doc["components"]).to eq({ "schemas" => { "Item" => item_def } })
+      end
+
+      it "rewrites $ref '#/$defs/Foo' to '#/components/schemas/Foo' in operations" do
+        schema = {
+          "$defs" => { "Item" => item_def },
+          "responses" => {
+            "200" => {
+              "content" => {
+                "application/json" => { "schema" => { "$ref" => "#/$defs/Item" } }
+              }
+            }
+          }
+        }
+        create_schema("items/_index.schema.json", JSON.generate(schema))
+        with_rails_routes { get "/items", to: "items#index" }
+
+        doc = described_class.new(view_paths: [@tmpdir]).as_json
+        ref = doc["paths"]["/items"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["$ref"]
+
+        expect(ref).to eq "#/components/schemas/Item"
+      end
+
+      it "omits components key when no schema has $defs" do
+        schema = { "responses" => { "200" => { "content" => { "application/json" => { "schema" => { "type" => "object" } } } } } }
+        create_schema("items/_index.schema.json", JSON.generate(schema))
+        with_rails_routes { get "/items", to: "items#index" }
+
+        doc = described_class.new(view_paths: [@tmpdir]).as_json
+
+        expect(doc).not_to have_key("components")
+      end
+
+      it "strips $defs from the operation object" do
+        schema = {
+          "$defs" => { "Item" => item_def },
+          "responses" => { "200" => {} }
+        }
+        create_schema("items/_index.schema.json", JSON.generate(schema))
+        with_rails_routes { get "/items", to: "items#index" }
+
+        doc = described_class.new(view_paths: [@tmpdir]).as_json
+        operation = doc["paths"]["/items"]["get"]
+
+        expect(operation).not_to have_key("$defs")
+      end
+
+      it "warns on duplicate $defs names" do
+        schema_a = {
+          "$defs" => { "Item" => item_def },
+          "responses" => { "200" => {} }
+        }
+        schema_b = {
+          "$defs" => { "Item" => { "type" => "string" } },
+          "responses" => { "201" => {} }
+        }
+        create_schema("items/_index.schema.json", JSON.generate(schema_a))
+        create_schema("items/_create.schema.json", JSON.generate(schema_b))
+        with_rails_routes do
+          get "/items", to: "items#index"
+          post "/items", to: "items#create"
+        end
+
+        expect {
+          described_class.new(view_paths: [@tmpdir]).as_json
+        }.to output(/Duplicate \$defs key 'Item'/).to_stderr
+      end
+    end
   end
 
   describe "#to_json" do

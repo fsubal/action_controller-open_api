@@ -5,6 +5,7 @@ module ActionController
 
       def initialize(schema)
         @schema = schema
+        @defs = schema["$defs"] || {}
       end
 
       def validate!(request)
@@ -114,7 +115,8 @@ module ActionController
       end
 
       def validate_with_json_schemer(data, schema)
-        schemer = JSONSchemer.schema(schema)
+        schemer_schema = @defs.empty? ? schema : schema.merge("$defs" => @defs.merge(schema["$defs"] || {}))
+        schemer = JSONSchemer.schema(schemer_schema)
         schemer.validate(data).map do |error|
           { "error" => error["error"] || error["type"], "details" => error }
         end

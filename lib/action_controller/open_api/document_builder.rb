@@ -7,11 +7,10 @@ module ActionController
       end
 
       def as_json
-        {
-          "openapi" => "3.0.3",
-          "info" => @info,
-          "paths" => build_paths
-        }
+        paths = build_paths
+        doc = { "openapi" => "3.0.3", "info" => @info, "paths" => paths }
+        doc["components"] = { "schemas" => @collected_defs } if @collected_defs&.any?
+        doc
       end
 
       def to_json
@@ -20,9 +19,18 @@ module ActionController
 
       private
 
+      def title
+        if defined?(Rails)
+          app_name = Rails.application.class.module_parent_name.titleize
+          "#{app_name} API Documentation"
+        else
+          "API Documentation"
+        end
+      end
+
       def default_info
         {
-          "title" => "API Documentation",
+          "title" => title,
           "version" => "1.0.0"
         }
       end
@@ -31,6 +39,7 @@ module ActionController
         finder = SchemaFinder.new(@view_paths)
         inspector = RouteInspector.new
         paths = {}
+        @collected_defs = {}
 
         finder.find_all.each do |entry|
           route = inspector.find_route(entry[:controller_path], entry[:action_name])
@@ -38,6 +47,14 @@ module ActionController
 
           schema = parse_schema(entry[:path])
           next unless schema
+
+          (schema["$defs"] || {}).each do |name, defn|
+            if @collected_defs.key?(name)
+              warn "[action_controller-open_api] Duplicate $defs key '#{name}' from " \
+                   "#{entry[:controller_path]}##{entry[:action_name]}; overwriting"
+            end
+            @collected_defs[name] = defn
+          end
 
           operation = build_operation(schema, entry[:controller_path], entry[:action_name])
 
@@ -67,7 +84,19 @@ module ActionController
         operation["requestBody"] = schema["requestBody"] if schema["requestBody"]
         operation["responses"] = schema["responses"] if schema["responses"]
         operation["tags"] = schema["tags"] if schema["tags"]
-        operation
+        rewrite_refs(operation)
+      end
+
+      def rewrite_refs(obj)
+        case obj
+        when Hash
+          obj.each_with_object({}) do |(k, v), h|
+            h[k] = (k == "$ref" && v.is_a?(String) && v.start_with?("#/$defs/")) ?
+              v.sub("#/$defs/", "#/components/schemas/") : rewrite_refs(v)
+          end
+        when Array then obj.map { |v| rewrite_refs(v) }
+        else obj
+        end
       end
     end
   end

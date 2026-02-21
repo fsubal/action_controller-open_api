@@ -290,4 +290,84 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
   end
+
+  describe "$defs / $ref resolution" do
+    let(:item_def) do
+      {
+        "type" => "object",
+        "required" => ["id", "name"],
+        "properties" => {
+          "id" => { "type" => "integer" },
+          "name" => { "type" => "string" }
+        }
+      }
+    end
+
+    it "resolves $ref in requestBody schema" do
+      schema = {
+        "$defs" => { "Item" => item_def },
+        "requestBody" => {
+          "content" => {
+            "application/json" => {
+              "schema" => { "$ref" => "#/$defs/Item" }
+            }
+          }
+        }
+      }
+      request = mock_request(body: '{"id": 1, "name": "foo"}')
+
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
+    end
+
+    it "resolves $ref in parameter schema" do
+      schema = {
+        "$defs" => {
+          "ItemId" => { "type" => "integer", "minimum" => 1 }
+        },
+        "parameters" => [
+          { "name" => "id", "in" => "query", "required" => true, "schema" => { "$ref" => "#/$defs/ItemId" } }
+        ]
+      }
+      request = mock_request(query: { "id" => "42" })
+
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
+    end
+
+    it "raises when referenced type matches but data is invalid" do
+      schema = {
+        "$defs" => { "Item" => item_def },
+        "requestBody" => {
+          "content" => {
+            "application/json" => {
+              "schema" => { "$ref" => "#/$defs/Item" }
+            }
+          }
+        }
+      }
+      request = mock_request(body: '{"id": "not-an-integer", "name": "foo"}')
+
+      expect { described_class.new(schema).validate!(request) }.to raise_error(
+        ActionController::OpenApi::RequestValidationError
+      )
+    end
+
+    it "does not break schemas without $defs" do
+      schema = {
+        "requestBody" => {
+          "content" => {
+            "application/json" => {
+              "schema" => {
+                "type" => "object",
+                "required" => ["name"],
+                "properties" => { "name" => { "type" => "string" } }
+              }
+            }
+          }
+        }
+      }
+      request = mock_request(body: '{"name": "test"}')
+
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
+    end
+  end
 end

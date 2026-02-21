@@ -155,4 +155,76 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
   end
+
+  describe "$defs / $ref resolution" do
+    let(:item_def) do
+      {
+        "type" => "object",
+        "required" => ["id", "name"],
+        "properties" => {
+          "id" => { "type" => "integer" },
+          "name" => { "type" => "string" }
+        }
+      }
+    end
+
+    it "resolves $ref in response body schema" do
+      schema = {
+        "$defs" => { "Item" => item_def },
+        "responses" => {
+          "200" => {
+            "content" => {
+              "application/json" => {
+                "schema" => { "$ref" => "#/$defs/Item" }
+              }
+            }
+          }
+        }
+      }
+      response = mock_response(status: 200, body: '{"id": 1, "name": "widget"}')
+
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
+    end
+
+    it "raises when data is invalid against referenced type" do
+      schema = {
+        "$defs" => { "Item" => item_def },
+        "responses" => {
+          "200" => {
+            "content" => {
+              "application/json" => {
+                "schema" => { "$ref" => "#/$defs/Item" }
+              }
+            }
+          }
+        }
+      }
+      response = mock_response(status: 200, body: '{"id": "not-an-integer", "name": "widget"}')
+
+      expect { described_class.new(schema).validate!(response) }.to raise_error(
+        ActionController::OpenApi::ResponseValidationError
+      )
+    end
+
+    it "does not break schemas without $defs" do
+      schema = {
+        "responses" => {
+          "200" => {
+            "content" => {
+              "application/json" => {
+                "schema" => {
+                  "type" => "object",
+                  "required" => ["id"],
+                  "properties" => { "id" => { "type" => "integer" } }
+                }
+              }
+            }
+          }
+        }
+      }
+      response = mock_response(status: 200, body: '{"id": 1}')
+
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
+    end
+  end
 end
