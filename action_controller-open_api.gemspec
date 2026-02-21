@@ -3,11 +3,11 @@ require_relative "lib/action_controller/open_api/version"
 Gem::Specification.new do |spec|
   spec.name        = "action_controller-open_api"
   spec.version     = ActionController::OpenApi::VERSION
-  spec.authors     = ["Your Name"]
-  spec.email       = ["your.email@example.com"]
-  spec.homepage    = "https://github.com/yourusername/action_controller-open_api"
+  spec.authors     = ["fsubal"]
+  spec.email       = ["fsubal@users.noreply.github.com"]
+  spec.homepage    = "https://github.com/fsubal/action_controller-open_api"
   spec.summary     = "OpenAPI integration for ActionController"
-  spec.description = "A Rails plugin that provides OpenAPI/Swagger documentation generation for ActionController"
+  spec.description = "A Rails plugin that generates OpenAPI documentation from schema files placed alongside your views, and validates requests/responses against those schemas in development."
   spec.license     = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage

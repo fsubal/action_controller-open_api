@@ -208,7 +208,7 @@ bundle exec rails server
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/yourusername/action_controller-open_api.
+Bug reports and pull requests are welcome on GitHub at https://github.com/fsubal/action_controller-open_api.
 
 ## License
 
