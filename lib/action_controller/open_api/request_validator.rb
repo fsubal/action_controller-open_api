@@ -81,18 +81,36 @@ module ActionController
         content = request_body["content"]
         return [] unless content
 
-        json_schema = content.dig("application/json", "schema")
-        return [] unless json_schema
+        if (json_schema = content.dig("application/json", "schema"))
+          validate_json_body(request, json_schema)
+        elsif (form_schema = content.dig("multipart/form-data", "schema"))
+          validate_form_body(request, form_schema)
+        else
+          []
+        end
+      end
 
+      def validate_json_body(request, json_schema)
         body = begin
-          JSON.parse(request.body.read.presence || "{}")
+          raw = request.body.read
+          JSON.parse(raw.empty? ? "{}" : raw)
         rescue JSON::ParserError => e
           return [{ "error" => "Invalid JSON in request body: #{e.message}" }]
         ensure
           request.body.rewind
         end
-
         validate_with_json_schemer(body, json_schema)
+      end
+
+      def validate_form_body(request, form_schema)
+        params = request.request_parameters.transform_values do |v|
+          uploaded_file?(v) ? "" : v
+        end
+        validate_with_json_schemer(params, form_schema)
+      end
+
+      def uploaded_file?(value)
+        value.respond_to?(:original_filename)
       end
 
       def validate_with_json_schemer(data, schema)

@@ -2,7 +2,7 @@ require "spec_helper"
 require "stringio"
 
 RSpec.describe ActionController::OpenApi::RequestValidator do
-  def mock_request(query: {}, path: {}, headers: {}, body: nil)
+  def mock_request(query: {}, path: {}, headers: {}, body: nil, form: nil)
     req = double("request")
     allow(req).to receive(:query_parameters).and_return(query)
     allow(req).to receive(:path_parameters).and_return(path)
@@ -12,6 +12,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       string_io = StringIO.new(body)
       allow(req).to receive(:body).and_return(string_io)
     end
+    allow(req).to receive(:request_parameters).and_return(form || {})
     req
   end
 
@@ -183,6 +184,101 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       described_class.new(schema).validate!(request)
 
       expect(body_io.read).to eq '{"name": "test"}'
+    end
+  end
+
+  describe "multipart/form-data request body validation" do
+    let(:form_schema) do
+      {
+        "requestBody" => {
+          "content" => {
+            "multipart/form-data" => {
+              "schema" => {
+                "type" => "object",
+                "required" => ["title"],
+                "properties" => {
+                  "title" => { "type" => "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    end
+
+    it "passes when all required form fields are present" do
+      request = mock_request(form: { "title" => "hello" })
+      expect { described_class.new(form_schema).validate!(request) }.not_to raise_error
+    end
+
+    it "raises when a required text field is missing" do
+      request = mock_request(form: {})
+      expect { described_class.new(form_schema).validate!(request) }.to raise_error(
+        ActionController::OpenApi::RequestValidationError
+      )
+    end
+
+    it "passes when a required file field (format: binary) is present" do
+      schema = {
+        "requestBody" => {
+          "content" => {
+            "multipart/form-data" => {
+              "schema" => {
+                "type" => "object",
+                "required" => ["attachment"],
+                "properties" => {
+                  "attachment" => { "type" => "string", "format" => "binary" }
+                }
+              }
+            }
+          }
+        }
+      }
+      uploaded_file = double("uploaded_file", original_filename: "file.pdf")
+      request = mock_request(form: { "attachment" => uploaded_file })
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
+    end
+
+    it "raises when a required file field is missing" do
+      schema = {
+        "requestBody" => {
+          "content" => {
+            "multipart/form-data" => {
+              "schema" => {
+                "type" => "object",
+                "required" => ["attachment"],
+                "properties" => {
+                  "attachment" => { "type" => "string", "format" => "binary" }
+                }
+              }
+            }
+          }
+        }
+      }
+      request = mock_request(form: {})
+      expect { described_class.new(schema).validate!(request) }.to raise_error(
+        ActionController::OpenApi::RequestValidationError
+      )
+    end
+
+    it "passes when schema has only application/json content (existing behaviour unaffected)" do
+      schema = {
+        "requestBody" => {
+          "content" => {
+            "application/json" => {
+              "schema" => {
+                "type" => "object",
+                "required" => ["name"],
+                "properties" => {
+                  "name" => { "type" => "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+      request = mock_request(body: '{"name": "test"}')
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
   end
 
