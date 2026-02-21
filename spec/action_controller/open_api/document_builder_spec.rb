@@ -31,7 +31,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
     it "returns a valid OpenAPI 3.0.3 document structure" do
       with_rails_routes { }
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       expect(doc["openapi"]).to eq "3.0.3"
       expect(doc["info"]).to be_a Hash
@@ -41,7 +41,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
     it "uses default info when none provided" do
       with_rails_routes { }
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       expect(doc["info"]["title"]).to eq "API Documentation"
       expect(doc["info"]["version"]).to eq "1.0.0"
@@ -51,7 +51,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       with_rails_routes { }
       info = { "title" => "My API", "version" => "2.0.0" }
       builder = described_class.new(view_paths: [@tmpdir], info: info)
-      doc = builder.build
+      doc = builder.as_json
 
       expect(doc["info"]).to eq info
     end
@@ -76,7 +76,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       end
 
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       expect(doc["paths"]["/items"]).to be_a Hash
       expect(doc["paths"]["/items"]["get"]["operationId"]).to eq "items#index"
@@ -91,7 +91,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       end
 
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       expect(doc["paths"]["/items/{id}"]["get"]["operationId"]).to eq "items#show"
     end
@@ -105,7 +105,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       end
 
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       path = doc["paths"]["/items/{id}"]
       expect(path["get"]["operationId"]).to eq "items#show"
@@ -117,7 +117,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       with_rails_routes { }
 
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       expect(doc["paths"]).to be_empty
     end
@@ -137,7 +137,7 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       end
 
       builder = described_class.new(view_paths: [@tmpdir])
-      doc = builder.build
+      doc = builder.as_json
 
       operation = doc["paths"]["/items"]["post"]
       expect(operation["description"]).to eq "Creates a new item"

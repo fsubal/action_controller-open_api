@@ -12,7 +12,7 @@ namespace :action_controller_openapi do
       info: ActionController::OpenApi.configuration.info
     )
 
-    doc = builder.build
+    doc = builder.as_json
     json_string = JSON.pretty_generate(doc)
 
     json_path = output_dir.join("openapi.json")

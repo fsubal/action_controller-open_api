@@ -1,10 +1,13 @@
 module ActionController
   module OpenApi
     class ResponseValidator
-      def initialize
+      attr_reader :schema
+
+      def initialize(schema)
+        @schema = schema
       end
 
-      def validate!(schema, response)
+      def validate!(response)
         responses = schema["responses"]
         return unless responses
 

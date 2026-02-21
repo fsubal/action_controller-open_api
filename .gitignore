@@ -6,6 +6,8 @@
 /pkg/
 /spec/reports/
 /tmp/
+/test/dummy/tmp/
+/test/dummy/log/
 *.bundle
 *.so
 *.o

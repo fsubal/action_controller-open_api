@@ -26,7 +26,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 200, body: '{"id": 1}')
 
-      expect { validator.validate!(schema, response) }.not_to raise_error
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
 
     it "raises when response doesn't match schema" do
@@ -47,7 +47,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 200, body: '{"name": "test"}')
 
-      expect { validator.validate!(schema, response) }.to raise_error(
+      expect { described_class.new(schema).validate!(response) }.to raise_error(
         ActionController::OpenApi::ResponseValidationError
       )
     end
@@ -70,7 +70,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 201, body: '{"id": 1}')
 
-      expect { validator.validate!(schema, response) }.not_to raise_error
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
 
     it "falls back to default response schema" do
@@ -90,7 +90,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 500, body: '{"error": "internal"}')
 
-      expect { validator.validate!(schema, response) }.not_to raise_error
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
 
     it "raises on invalid JSON response body" do
@@ -107,7 +107,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 200, body: "not json")
 
-      expect { validator.validate!(schema, response) }.to raise_error(
+      expect { described_class.new(schema).validate!(response) }.to raise_error(
         ActionController::OpenApi::ResponseValidationError
       ) do |error|
         expect(error.validation_errors.first["error"]).to include("Invalid JSON")
@@ -118,7 +118,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       schema = { "summary" => "test" }
       response = mock_response(status: 200, body: "anything")
 
-      expect { validator.validate!(schema, response) }.not_to raise_error
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
 
     it "skips validation when status is not matched" do
@@ -135,7 +135,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 404, body: "not found")
 
-      expect { validator.validate!(schema, response) }.not_to raise_error
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
 
     it "skips validation for non-JSON content types" do
@@ -152,7 +152,7 @@ RSpec.describe ActionController::OpenApi::ResponseValidator do
       }
       response = mock_response(status: 200, body: "<html></html>")
 
-      expect { validator.validate!(schema, response) }.not_to raise_error
+      expect { described_class.new(schema).validate!(response) }.not_to raise_error
     end
   end
 end

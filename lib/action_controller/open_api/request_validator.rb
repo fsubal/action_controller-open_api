@@ -1,10 +1,13 @@
 module ActionController
   module OpenApi
     class RequestValidator
-      def initialize
+      attr_reader :schema
+
+      def initialize(schema)
+        @schema = schema
       end
 
-      def validate!(schema, request)
+      def validate!(request)
         errors = []
         errors.concat(validate_parameters(schema, request)) if schema["parameters"]
         errors.concat(validate_request_body(schema, request)) if schema["requestBody"]

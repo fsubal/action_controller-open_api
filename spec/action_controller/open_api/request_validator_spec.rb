@@ -2,8 +2,6 @@ require "spec_helper"
 require "stringio"
 
 RSpec.describe ActionController::OpenApi::RequestValidator do
-  let(:validator) { described_class.new }
-
   def mock_request(query: {}, path: {}, headers: {}, body: nil)
     req = double("request")
     allow(req).to receive(:query_parameters).and_return(query)
@@ -26,7 +24,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(query: { "id" => "42" })
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
 
     it "raises when required parameter is missing" do
@@ -37,7 +35,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(query: {})
 
-      expect { validator.validate!(schema, request) }.to raise_error(
+      expect { described_class.new(schema).validate!(request) }.to raise_error(
         ActionController::OpenApi::RequestValidationError
       ) do |error|
         expect(error.validation_errors.first["error"]).to include("Missing required")
@@ -52,7 +50,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(query: {})
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
 
     it "validates path parameters" do
@@ -63,7 +61,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(path: { id: "42" })
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
 
     it "raises when parameter value doesn't match schema type" do
@@ -74,7 +72,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(query: { "id" => "not_a_number" })
 
-      expect { validator.validate!(schema, request) }.to raise_error(
+      expect { described_class.new(schema).validate!(request) }.to raise_error(
         ActionController::OpenApi::RequestValidationError
       )
     end
@@ -87,7 +85,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(query: { "active" => "true" })
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
 
     it "validates header parameters" do
@@ -98,7 +96,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(headers: { "X-Api-Key" => "secret" })
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
   end
 
@@ -121,7 +119,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(body: '{"name": "test"}')
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
 
     it "raises when body doesn't match schema" do
@@ -142,7 +140,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(body: '{"age": 25}')
 
-      expect { validator.validate!(schema, request) }.to raise_error(
+      expect { described_class.new(schema).validate!(request) }.to raise_error(
         ActionController::OpenApi::RequestValidationError
       )
     end
@@ -159,7 +157,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       }
       request = mock_request(body: "not json")
 
-      expect { validator.validate!(schema, request) }.to raise_error(
+      expect { described_class.new(schema).validate!(request) }.to raise_error(
         ActionController::OpenApi::RequestValidationError
       ) do |error|
         expect(error.validation_errors.first["error"]).to include("Invalid JSON")
@@ -182,7 +180,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
         headers: {}, cookie_jar: {}, body: body_io
       )
 
-      validator.validate!(schema, request)
+      described_class.new(schema).validate!(request)
 
       expect(body_io.read).to eq '{"name": "test"}'
     end
@@ -193,7 +191,7 @@ RSpec.describe ActionController::OpenApi::RequestValidator do
       schema = { "responses" => {} }
       request = mock_request
 
-      expect { validator.validate!(schema, request) }.not_to raise_error
+      expect { described_class.new(schema).validate!(request) }.not_to raise_error
     end
   end
 end

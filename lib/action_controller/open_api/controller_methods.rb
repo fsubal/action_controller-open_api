@@ -10,15 +10,17 @@ module ActionController
       private
 
       def validate_by_openapi_schema!
-        schema = self.class._openapi_schema_resolver.resolve(
+        RequestValidator.new(openapi_schema).validate!(request) if openapi_schema
+        yield
+        ResponseValidator.new(openapi_schema).validate!(response) if openapi_schema
+      end
+
+      def openapi_schema
+        @openapi_schema ||= self.class._openapi_schema_resolver.resolve(
           controller_path,
           action_name,
           view_paths
         )
-
-        RequestValidator.new.validate!(schema, request) if schema
-        yield
-        ResponseValidator.new.validate!(schema, response) if schema
       end
     end
   end

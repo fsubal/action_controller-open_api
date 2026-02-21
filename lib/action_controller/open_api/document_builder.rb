@@ -6,7 +6,7 @@ module ActionController
         @info = info || default_info
       end
 
-      def build
+      def as_json
         {
           "openapi" => "3.0.3",
           "info" => @info,
@@ -15,7 +15,7 @@ module ActionController
       end
 
       def to_json
-        JSON.pretty_generate(build)
+        JSON.pretty_generate(as_json)
       end
 
       private
