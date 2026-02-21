@@ -2,11 +2,11 @@ module ActionController
   module OpenApi
     module DocumentPage
       class Engine < ::Rails::Engine
-        isolate_namespace ActionController::OpenApi::DocumentPage
-
-        initializer "action_controller_open_api.document_page.assets" do |app|
-          app.config.assets.precompile += %w[] if app.config.respond_to?(:assets)
+        def self.find_root(from)
+          Pathname.new(from)
         end
+
+        isolate_namespace ActionController::OpenApi::DocumentPage
       end
     end
   end
