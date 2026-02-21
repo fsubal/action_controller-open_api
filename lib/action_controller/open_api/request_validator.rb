@@ -35,7 +35,8 @@ module ActionController
 
           next unless param_schema["schema"]
 
-          coerced = coerce_value(value, param_schema["schema"])
+          resolved = resolve_schema(param_schema["schema"])
+          coerced = coerce_value(value, resolved)
           param_errors = validate_with_json_schemer(coerced, param_schema["schema"])
           param_errors.each do |e|
             errors << { "error" => "Invalid #{location} parameter '#{name}': #{e["error"]}", "parameter" => name, "in" => location }
@@ -55,6 +56,13 @@ module ActionController
         when "cookie"
           request.cookie_jar[name]
         end
+      end
+
+      def resolve_schema(schema)
+        ref = schema["$ref"]
+        return schema unless ref&.start_with?("#/$defs/")
+        name = ref.delete_prefix("#/$defs/")
+        @defs[name] || schema
       end
 
       def coerce_value(value, schema)

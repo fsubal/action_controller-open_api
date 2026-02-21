@@ -19,17 +19,9 @@ module ActionController
 
       private
 
-      def title
-        if defined?(Rails)
-          "#{Rails.application.class} API Documentation"
-        else
-          "API Documentation"
-        end
-      end
-
       def default_info
         {
-          "title" => title,
+          "title" => "API Documentation",
           "version" => "1.0.0"
         }
       end
