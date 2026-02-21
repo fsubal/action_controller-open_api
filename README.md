@@ -195,6 +195,28 @@ This outputs:
 - `public/openapi/openapi.json` — The OpenAPI document
 - `public/openapi/index.html` — Standalone Redoc HTML page with the spec embedded
 
+### Extracting JSON Schema (for client type generation)
+
+Extract the response or request body JSON Schema from a schema file and pipe it to tools like [quicktype](https://quicktype.io/):
+
+```bash
+# Extract the response schema (defaults to first status code)
+bin/rails 'action_controller_openapi:schema:response[items/show]'
+
+# Specify a status code
+bin/rails 'action_controller_openapi:schema:response[items/show,200]'
+
+# Extract the requestBody schema
+bin/rails 'action_controller_openapi:schema:request_body[items/create]'
+```
+
+Pipe to `quicktype` to generate TypeScript types:
+
+```bash
+bin/rails 'action_controller_openapi:schema:response[items/show]' | quicktype -l typescript -o item.ts --src-lang schema
+bin/rails 'action_controller_openapi:schema:request_body[items/create]' | quicktype -l typescript -o create_item_params.ts --src-lang schema
+```
+
 ## Testing
 
 Use `assert_response_conforms_to_openapi_schema` to verify API responses match your OpenAPI schemas in tests. It works with both Minitest and RSpec.
