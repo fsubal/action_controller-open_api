@@ -24,6 +24,8 @@ lib/action_controller/open_api/
 ├── route_inspector.rb      # Maps controller#action → OpenAPI path + method
 ├── document_builder.rb     # Assembles full OpenAPI 3.0.3 document
 ├── errors.rb               # RequestValidationError, ResponseValidationError
+├── test_helper.rb          # Framework-agnostic test assertion (Minitest + RSpec)
+├── rspec.rb                # RSpec matcher wrapper + auto-include for request specs
 ├── document_page/          # Mountable Rails Engine serving Redoc UI
 └── tasks/                  # Rake task for static OpenAPI + Redoc generation
 ```

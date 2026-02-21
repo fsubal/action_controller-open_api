@@ -195,6 +195,59 @@ This outputs:
 - `public/openapi/openapi.json` — The OpenAPI document
 - `public/openapi/index.html` — Standalone Redoc HTML page with the spec embedded
 
+## Testing
+
+Use `assert_response_conforms_to_openapi_schema` to verify API responses match your OpenAPI schemas in tests. It works with both Minitest and RSpec.
+
+### Minitest
+
+```ruby
+require "action_controller/open_api/test_helper"
+
+class ItemsTest < ActionDispatch::IntegrationTest
+  include ActionController::OpenApi::TestHelper
+
+  test "GET /items/1 conforms to schema" do
+    get "/items/1"
+    assert_response_conforms_to_openapi_schema
+  end
+end
+```
+
+### RSpec
+
+```ruby
+# in rails_helper.rb
+require "action_controller/open_api/test_helper"
+
+RSpec.configure do |config|
+  config.include ActionController::OpenApi::TestHelper, type: :request
+end
+
+# in spec
+RSpec.describe "Items API", type: :request do
+  it "conforms to the OpenAPI schema" do
+    get "/items/1"
+    assert_response_conforms_to_openapi_schema
+  end
+end
+```
+
+For an RSpec-idiomatic matcher, require `action_controller/open_api/rspec` instead:
+
+```ruby
+# in rails_helper.rb
+require "action_controller/open_api/rspec"
+
+# in spec — auto-included for type: :request
+RSpec.describe "Items API", type: :request do
+  it "conforms to the OpenAPI schema" do
+    get "/items/1"
+    expect(response).to conform_to_openapi_schema
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies. Then, run `bundle exec rspec` to run the tests.
