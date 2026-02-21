@@ -21,8 +21,7 @@ module ActionController
 
       def title
         if defined?(Rails)
-          app_name = Rails.application.class.module_parent_name.titleize
-          "#{app_name} API Documentation"
+          "#{Rails.application.class} API Documentation"
         else
           "API Documentation"
         end
