@@ -16,14 +16,9 @@ module ActionController
           view_paths
         )
 
-        unless schema
-          yield
-          return
-        end
-
-        RequestValidator.new.validate!(schema, request)
+        RequestValidator.new.validate!(schema, request) if schema
         yield
-        ResponseValidator.new.validate!(schema, response)
+        ResponseValidator.new.validate!(schema, response) if schema
       end
     end
   end
