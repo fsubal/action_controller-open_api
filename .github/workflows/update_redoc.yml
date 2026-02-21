@@ -1,0 +1,36 @@
+name: Update Redoc
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"  # Every Monday at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch latest redoc.standalone.js
+        run: |
+          curl -sL https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js \
+            -o lib/action_controller/open_api/document_page/app/assets/javascripts/redoc.standalone.js
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push if changed
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lib/action_controller/open_api/document_page/app/assets/javascripts/redoc.standalone.js
+          git commit -m "Update vendored redoc.standalone.js"
+          git push

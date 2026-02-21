@@ -2,7 +2,16 @@ module ActionController
   module OpenApi
     module DocumentPage
       class DocumentsController < ::ActionController::Base
+        REDOC_JS_PATH = File.expand_path(
+          "../../assets/javascripts/redoc.standalone.js",
+          __dir__
+        )
+
         def show; end
+
+        def redoc_js
+          send_file REDOC_JS_PATH, type: "application/javascript", disposition: :inline
+        end
 
         def schema
           builder = ::ActionController::OpenApi::DocumentBuilder.new(

@@ -10,7 +10,7 @@
 </head>
 <body>
   <div id="redoc-container"></div>
-  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  <script src="<%= redoc_js_path %>"></script>
   <script>
     Redoc.init('<%= schema_path %>', {}, document.getElementById('redoc-container'));
   </script>

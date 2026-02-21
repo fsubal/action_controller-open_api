@@ -68,6 +68,13 @@ namespace :action_controller_openapi do
     File.write(json_path, json_string)
     puts "Written: #{json_path}"
 
+    redoc_js = File.read(
+      File.expand_path(
+        "../../document_page/app/assets/javascripts/redoc.standalone.js",
+        __FILE__
+      )
+    )
+
     html = <<~HTML
       <!DOCTYPE html>
       <html>
@@ -81,7 +88,7 @@ namespace :action_controller_openapi do
       </head>
       <body>
         <div id="redoc-container"></div>
-        <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+        <script>#{redoc_js}</script>
         <script>
           var spec = #{json_string};
           Redoc.init(spec, {}, document.getElementById('redoc-container'));
