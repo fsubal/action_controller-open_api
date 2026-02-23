@@ -48,6 +48,32 @@ namespace :action_controller_openapi do
     end
   end
 
+  desc "Inspect the full OpenAPI Operation for a controller action (e.g. action_controller_openapi:operation[items/show])"
+  task :operation, [:action_path] => :environment do |_t, args|
+    action_path = args[:action_path]
+    abort "Usage: rake action_controller_openapi:operation[controller/action]" unless action_path
+
+    parts = action_path.split("/")
+    action_name = parts.pop
+    controller_path = parts.join("/")
+
+    view_paths = ActionController::Base.view_paths.map(&:to_path)
+    resolver = ActionController::OpenApi::SchemaResolver.new
+    schema = resolver.resolve(controller_path, action_name, view_paths)
+    abort "No schema found for #{controller_path}/#{action_name}" unless schema
+
+    route = ActionController::OpenApi::RouteInspector.new.find_route(controller_path, action_name)
+    abort "No route found for #{controller_path}##{action_name}" unless route
+
+    operation = {
+      route[:path] => {
+        route[:method] => schema
+      }
+    }
+
+    $stdout.puts JSON.pretty_generate(operation)
+  end
+
   desc "Precompile OpenAPI document and Redoc HTML to public/openapi/"
   task precompile: :environment do
     require "fileutils"

@@ -1,6 +1,8 @@
 module ActionController
   module OpenApi
     class DocumentBuilder
+      OPENAPI_VERSION = "3.0.3"
+
       def initialize(view_paths:, info: nil)
         @view_paths = view_paths
         @info = info || default_info
@@ -8,7 +10,7 @@ module ActionController
 
       def as_json
         paths = build_paths
-        doc = { "openapi" => "3.0.3", "info" => @info, "paths" => paths }
+        doc = { "openapi" => OPENAPI_VERSION, "info" => @info, "paths" => paths }
         doc["components"] = { "schemas" => @collected_defs } if @collected_defs&.any?
         doc
       end
