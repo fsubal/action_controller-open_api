@@ -128,6 +128,25 @@ class ItemsController < ApplicationController
 end
 ```
 
+### 3. Use `openapi_params` for strong parameters
+
+`openapi_params` is available in every controller action. It derives a `params.permit(...)` call directly from the schema's `requestBody` properties and `query` parameters — no manual permit list needed:
+
+```ruby
+class ItemsController < ApplicationController
+  around_action :validate_by_openapi_schema!
+
+  def create
+    # equivalent to params.permit(:name)
+    # derived from the requestBody properties in _create.schema.json
+    item = Item.create!(openapi_params)
+    render json: item, status: :created
+  end
+end
+```
+
+It handles nested objects, arrays, and `$ref` references automatically. Query parameters are also included; path/header/cookie parameters are excluded (they are not part of the Rails params hash).
+
 When validation fails:
 
 - **Invalid request** (bad parameters or request body) — raises `ActionController::OpenApi::RequestValidationError`

@@ -21,6 +21,7 @@ lib/action_controller/open_api/
 ├── schema_resolver.rb      # Parses and caches schema files
 ├── request_validator.rb    # Validates params + request body against schema
 ├── response_validator.rb   # Validates response body against schema
+├── action_parameter.rb     # Derives Rails permit list from OpenAPI schema (used by openapi_params)
 ├── route_inspector.rb      # Maps controller#action → OpenAPI path + method
 ├── document_builder.rb     # Assembles full OpenAPI 3.0.3 document
 ├── errors.rb               # RequestValidationError, ResponseValidationError

@@ -48,7 +48,7 @@ RSpec.describe ActionController::OpenApi::ControllerMethods do
         @view_paths_value
       end
 
-      public :validate_by_openapi_schema!
+      public :validate_by_openapi_schema!, :openapi_params
     end
     klass
   end
@@ -60,6 +60,48 @@ RSpec.describe ActionController::OpenApi::ControllerMethods do
     controller.action_name_value = "show"
     controller.view_paths_value = ["/app/views"]
     controller_class._openapi_schema_resolver = resolver
+  end
+
+  describe "#openapi_params" do
+    context "when no schema exists" do
+      before { allow(resolver).to receive(:resolve).and_return(nil) }
+
+      it "raises MissingSchemaError" do
+        expect { controller.openapi_params }.to raise_error(
+          ActionController::OpenApi::MissingSchemaError,
+          /items#show/
+        )
+      end
+    end
+
+    context "when schema exists" do
+      let(:body_schema) do
+        {
+          "requestBody" => {
+            "content" => {
+              "application/json" => {
+                "schema" => {
+                  "type" => "object",
+                  "properties" => { "name" => { "type" => "string" } }
+                }
+              }
+            }
+          }
+        }
+      end
+
+      before { allow(resolver).to receive(:resolve).and_return(body_schema) }
+
+      it "returns a permitted params object derived from the schema" do
+        raw_params = ActionController::Parameters.new("name" => "widget", "extra" => "ignored")
+        allow(controller).to receive(:params).and_return(raw_params)
+
+        result = controller.openapi_params
+
+        expect(result[:name]).to eq "widget"
+        expect(result.key?(:extra)).to be false
+      end
+    end
   end
 
   describe "#validate_by_openapi_schema!" do

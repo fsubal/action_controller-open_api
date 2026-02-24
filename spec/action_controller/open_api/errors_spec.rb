@@ -6,6 +6,19 @@ RSpec.describe ActionController::OpenApi::Error do
   end
 end
 
+RSpec.describe ActionController::OpenApi::MissingSchemaError do
+  it "is an ActionController::OpenApi::Error" do
+    expect(described_class.superclass).to eq ActionController::OpenApi::Error
+  end
+
+  it "builds a message with controller_path and action_name" do
+    ex = described_class.new("items", "show")
+
+    expect(ex.message).to include("items#show")
+    expect(ex.message).to include("app/views/items/_show.schema.json")
+  end
+end
+
 RSpec.describe ActionController::OpenApi::RequestValidationError do
   it "is an ActionController::OpenApi::Error" do
     expect(described_class.superclass).to eq ActionController::OpenApi::Error

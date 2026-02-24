@@ -11,6 +11,7 @@ require "action_controller/open_api/schema_resolver"
 require "action_controller/open_api/route_inspector"
 require "action_controller/open_api/request_validator"
 require "action_controller/open_api/response_validator"
+require "action_controller/open_api/action_parameter"
 require "action_controller/open_api/controller_methods"
 require "action_controller/open_api/document_builder"
 require "action_controller/open_api/railtie" if defined?(Rails::Railtie)

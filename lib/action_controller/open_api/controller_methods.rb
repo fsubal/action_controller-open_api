@@ -22,6 +22,15 @@ module ActionController
           view_paths
         )
       end
+
+      def openapi_params
+        schema = openapi_schema
+        raise MissingSchemaError.new(controller_path, action_name) unless schema
+
+        defs = schema["$defs"] || {}
+        permit_list = ActionParameter.new(schema, defs: defs).permit_list
+        params.permit(*permit_list)
+      end
     end
   end
 end

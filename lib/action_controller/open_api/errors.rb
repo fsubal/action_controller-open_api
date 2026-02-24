@@ -11,6 +11,14 @@ module ActionController
       end
     end
 
+    class MissingSchemaError < Error
+      def initialize(controller_path, action_name)
+        super("No OpenAPI schema found for #{controller_path}##{action_name}. " \
+              "openapi_params requires a schema file at " \
+              "app/views/#{controller_path}/_#{action_name}.schema.json")
+      end
+    end
+
     class ResponseValidationError < Error
       attr_reader :validation_errors
 
