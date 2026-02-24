@@ -94,12 +94,22 @@ namespace :action_controller_openapi do
     File.write(json_path, json_string)
     puts "Written: #{json_path}"
 
-    redoc_js = File.read(
-      File.expand_path(
-        "../document_page/app/assets/javascripts/redoc.standalone.js",
-        __dir__
-      )
-    )
+    redoc_js_source = ActionController::OpenApi.configuration.redoc_js_source
+    redoc_script_tag =
+      case redoc_js_source
+      when :vendored
+        redoc_js = File.read(
+          File.expand_path(
+            "../document_page/app/assets/javascripts/redoc.standalone.js",
+            __dir__
+          )
+        )
+        "<script>#{redoc_js}</script>"
+      when :cdn
+        "<script src=\"#{ActionController::OpenApi::CDN_REDOC_JS_URL}\"></script>"
+      else
+        "<script src=\"#{redoc_js_source}\"></script>"
+      end
 
     html = <<~HTML
       <!DOCTYPE html>
@@ -114,7 +124,7 @@ namespace :action_controller_openapi do
       </head>
       <body>
         <div id="redoc-container"></div>
-        <script>#{redoc_js}</script>
+        #{redoc_script_tag}
         <script>
           var spec = #{json_string};
           Redoc.init(spec, {}, document.getElementById('redoc-container'));

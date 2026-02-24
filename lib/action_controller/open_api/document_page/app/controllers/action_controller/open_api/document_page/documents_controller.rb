@@ -23,6 +23,18 @@ module ActionController
 
           render json: builder.as_json
         end
+
+        private
+
+        def openapi_redoc_js_url
+          source = ::ActionController::OpenApi.configuration.redoc_js_source
+          case source
+          when :vendored then redoc_js_path
+          when :cdn      then ::ActionController::OpenApi::CDN_REDOC_JS_URL
+          else                source.to_s
+          end
+        end
+        helper_method :openapi_redoc_js_url
       end
     end
   end

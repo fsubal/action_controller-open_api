@@ -10,7 +10,7 @@
 </head>
 <body>
   <div id="redoc-container"></div>
-  <script src="<%= redoc_js_path %>"></script>
+  <script src="<%= openapi_redoc_js_url %>"></script>
   <script>
     Redoc.init('<%= schema_path %>', {}, document.getElementById('redoc-container'));
   </script>

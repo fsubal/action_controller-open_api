@@ -18,11 +18,14 @@ require "action_controller/open_api/railtie" if defined?(Rails::Railtie)
 
 module ActionController
   module OpenApi
+    CDN_REDOC_JS_URL = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"
+
     class Configuration
-      attr_accessor :info
+      attr_accessor :info, :redoc_js_source
 
       def initialize
         @info = nil
+        @redoc_js_source = :vendored
       end
     end
 

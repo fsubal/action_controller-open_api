@@ -13,6 +13,25 @@ RSpec.describe ActionController::OpenApi::Configuration do
       expect(config.info).to eq({ "title" => "My API", "version" => "1.0" })
     end
   end
+
+  describe "#redoc_js_source" do
+    it "defaults to :vendored" do
+      config = described_class.new
+      expect(config.redoc_js_source).to eq(:vendored)
+    end
+
+    it "can be set to :cdn" do
+      config = described_class.new
+      config.redoc_js_source = :cdn
+      expect(config.redoc_js_source).to eq(:cdn)
+    end
+
+    it "can be set to a custom URL string" do
+      config = described_class.new
+      config.redoc_js_source = "/assets/redoc.standalone.js"
+      expect(config.redoc_js_source).to eq("/assets/redoc.standalone.js")
+    end
+  end
 end
 
 RSpec.describe ActionController::OpenApi do
