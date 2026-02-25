@@ -158,7 +158,7 @@ RSpec.describe ActionController::OpenApi::ActionParameter do
         expect(permit_list(schema)).to contain_exactly(:page, :per_page)
       end
 
-      it "excludes path, header, and cookie parameters" do
+      it "includes path parameters and excludes header and cookie parameters" do
         schema = {
           "parameters" => [
             { "name" => "id", "in" => "path", "schema" => { "type" => "integer" } },
@@ -168,7 +168,7 @@ RSpec.describe ActionController::OpenApi::ActionParameter do
           ]
         }
 
-        expect(permit_list(schema)).to eq [:q]
+        expect(permit_list(schema)).to contain_exactly(:id, :q)
       end
     end
 

@@ -12,7 +12,7 @@ module ActionController
       def permit_list
         list = []
         list.concat(permit_list_from_request_body) if @schema["requestBody"]
-        list.concat(permit_list_from_query_parameters) if @schema["parameters"]
+        list.concat(permit_list_from_url_parameters) if @schema["parameters"]
         list
       end
 
@@ -28,9 +28,9 @@ module ActionController
         properties_to_permit_list(resolved["properties"] || {})
       end
 
-      def permit_list_from_query_parameters
+      def permit_list_from_url_parameters
         Array(@schema["parameters"])
-          .select { |p| p["in"] == "query" }
+          .select { |p| p["in"] == "query" || p["in"] == "path" }
           .map { |p| p["name"].to_sym }
       end
 

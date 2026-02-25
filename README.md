@@ -145,7 +145,7 @@ class ItemsController < ApplicationController
 end
 ```
 
-It handles nested objects, arrays, and `$ref` references automatically. Query parameters are also included; path/header/cookie parameters are excluded (they are not part of the Rails params hash).
+It handles nested objects, arrays, and `$ref` references automatically. Query and path parameters are also included; header and cookie parameters are excluded (they are not part of the Rails params hash).
 
 When validation fails:
 
