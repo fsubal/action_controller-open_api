@@ -30,7 +30,7 @@ module ActionController
 
       def permit_list_from_url_parameters
         Array(@schema["parameters"])
-          .select { |p| p["in"] == "query" || p["in"] == "path" }
+          .select { |p| %w[query path].include?(p["in"]) }
           .map { |p| p["name"].to_sym }
       end
 
