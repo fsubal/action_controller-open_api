@@ -1,4 +1,4 @@
-require "action_controller/open_api/test_helper/assertsion"
+require "action_controller/open_api/test_helper/assertion"
 
 module ActionController
   module OpenApi
