@@ -64,11 +64,9 @@ module ActionController
         end
 
         def fail!(message)
-          if defined?(Minitest::Assertion)
-            raise Minitest::Assertion, message
-          else
-            raise message
-          end
+          raise message unless defined?(Minitest::Assertion)
+
+          raise Minitest::Assertion, message
         end
       end
     end
