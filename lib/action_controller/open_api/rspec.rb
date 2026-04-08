@@ -1,14 +1,11 @@
-require "action_controller/open_api/test_helper"
+require "action_controller/open_api/test_helper/assertsion"
 
 RSpec::Matchers.define :conform_to_openapi_schema do
   match do |response|
     @response = response
+
     begin
-      helper = Object.new
-      helper.extend(ActionController::OpenApi::TestHelper)
-      helper.define_singleton_method(:response) { @response }
-      helper.instance_variable_set(:@response, response)
-      helper.assert_response_conforms_to_openapi_schema
+      TestHelper::Assertion.new(response).call
       true
     rescue StandardError => e
       @failure_message = e.message
@@ -16,9 +13,7 @@ RSpec::Matchers.define :conform_to_openapi_schema do
     end
   end
 
-  failure_message do
-    @failure_message
-  end
+  failure_message { @failure_message }
 end
 
 RSpec.configure do |config|
