@@ -84,6 +84,23 @@ RSpec.describe ActionController::OpenApi::DocumentBuilder do
       expect(doc["paths"]["/items"]["get"]["responses"]).to eq schema["responses"]
     end
 
+    it "reads .schema.jsonc files" do
+      create_schema("items/_show.schema.jsonc", <<~JSONC)
+        {
+          // JSONC, as TypeScript content mappers can read it
+          "summary": "Show item",
+        }
+      JSONC
+      with_rails_routes do
+        get "/items/:id", to: "items#show"
+      end
+
+      builder = described_class.new(view_paths: [@tmpdir])
+      doc = builder.as_json
+
+      expect(doc["paths"]["/items/{id}"]["get"]["summary"]).to eq "Show item"
+    end
+
     it "generates operationId from controller_path and action_name" do
       create_schema("items/_show.schema.json", '{"summary": "Show item"}')
       with_rails_routes do

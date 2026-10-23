@@ -22,7 +22,7 @@ module ActionController
           unless schema
             fail!(
               "No OpenAPI schema found for #{controller_path}##{action_name}. " \
-              "Expected file at app/views/#{controller_path}/_#{action_name}.schema.json"
+              "Expected file at #{SchemaFile.expected_path(controller_path, action_name)}"
             )
           end
 

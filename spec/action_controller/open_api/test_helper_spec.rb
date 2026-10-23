@@ -85,7 +85,7 @@ RSpec.describe ActionController::OpenApi::TestHelper do
 
       expect { helper.assert_response_conforms_to_openapi_schema }.to raise_error(RuntimeError) do |error|
         expect(error.message).to include("No OpenAPI schema found for items#show")
-        expect(error.message).to include("app/views/items/_show.schema.json")
+        expect(error.message).to include("app/views/items/_show.schema.{json,jsonc,yaml,yml}")
       end
     end
 

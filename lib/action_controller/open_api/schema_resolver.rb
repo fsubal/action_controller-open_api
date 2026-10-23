@@ -11,19 +11,7 @@ module ActionController
 
         finder = SchemaFinder.new(view_paths)
         path = finder.find(controller_path, action_name)
-        @cache[cache_key] = path ? parse(path) : nil
-      end
-
-      private
-
-      def parse(path)
-        content = path.read
-        case path.extname
-        when ".json"
-          JSON.parse(content)
-        when ".yaml", ".yml"
-          YAML.safe_load(content, permitted_classes: [Symbol])
-        end
+        @cache[cache_key] = path ? SchemaFile.parse(path) : nil
       end
     end
   end

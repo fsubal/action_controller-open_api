@@ -38,7 +38,7 @@ module ActionController
           route = inspector.find_route(entry[:controller_path], entry[:action_name])
           next unless route
 
-          schema = parse_schema(entry[:path])
+          schema = SchemaFile.parse(entry[:path])
           next unless schema
 
           (schema["$defs"] || {}).each do |name, defn|
@@ -56,16 +56,6 @@ module ActionController
         end
 
         paths
-      end
-
-      def parse_schema(path)
-        content = path.read
-        case path.extname
-        when ".json"
-          JSON.parse(content)
-        when ".yaml", ".yml"
-          YAML.safe_load(content, permitted_classes: [Symbol])
-        end
       end
 
       def build_operation(schema, controller_path, action_name)

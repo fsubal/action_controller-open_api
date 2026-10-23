@@ -15,7 +15,7 @@ RSpec.describe ActionController::OpenApi::MissingSchemaError do
     ex = described_class.new("items", "show")
 
     expect(ex.message).to include("items#show")
-    expect(ex.message).to include("app/views/items/_show.schema.json")
+    expect(ex.message).to include("app/views/items/_show.schema.{json,jsonc,yaml,yml}")
   end
 end
 

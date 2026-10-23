@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `.schema.jsonc` schema files (JSON with comments and trailing commas), so TypeScript content mappers such as json-schema-content-mapper can read them; `.schema.json` still takes precedence
 - Initial gem structure
 - Basic Rails integration via Railtie
 

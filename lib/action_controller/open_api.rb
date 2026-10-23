@@ -6,6 +6,7 @@ require "active_support/concern"
 
 require "action_controller/open_api/version"
 require "action_controller/open_api/errors"
+require "action_controller/open_api/schema_file"
 require "action_controller/open_api/schema_finder"
 require "action_controller/open_api/schema_resolver"
 require "action_controller/open_api/route_inspector"

@@ -20,7 +20,7 @@ bundle install
 
 ### 1. Define schema files in `app/views`
 
-Place `.schema.json` (or `.schema.yaml`) files next to your view templates. The file name must follow the `_<action>.schema.json` convention:
+Place `.schema.json` files (or `.schema.jsonc` / `.schema.yaml` / `.schema.yml`) next to your view templates. The file name must follow the `_<action>.schema.json` convention:
 
 ```
 app/
@@ -31,6 +31,8 @@ app/
       _create.schema.json
       show.json.jbuilder      # your regular view template
 ```
+
+`.schema.jsonc` is JSON that may contain `//` and `/* */` comments and trailing commas. If an action has several schema files, `.schema.json` wins, then `.schema.jsonc`, `.schema.yaml` and `.schema.yml`.
 
 Each schema file describes the **operation** for that controller action — parameters, request body, and responses — following the [OpenAPI 3.0 Operation Object](https://swagger.io/docs/specification/v3_0/paths-and-operations/) format. You don't need to specify the path or HTTP method; those are inferred from Rails routes.
 
@@ -235,6 +237,20 @@ Pipe to `quicktype` to generate TypeScript types:
 bin/rails 'action_controller_openapi:schema:response[items/show]' | quicktype -l typescript -o item.ts --src-lang schema
 bin/rails 'action_controller_openapi:schema:request_body[items/create]' | quicktype -l typescript -o create_item_params.ts --src-lang schema
 ```
+
+### Using the schemas as TypeScript types (without code generation)
+
+With TypeScript 7.1+, [json-schema-content-mapper](https://github.com/fsubal/json-schema-content-mapper) lets TypeScript import the schema files directly as types — no generated files to keep in sync:
+
+```ts
+import type * as Show from "../app/views/items/_show.schema.jsonc";
+import type * as Create from "../app/views/items/_create.schema.jsonc";
+
+const item: Show.Response = await (await fetch("/items/1")).json();
+const body: Create.RequestBody = { name: "New item" };
+```
+
+TypeScript does not let content mappers handle files ending in `.json`, so write the schemas as `.schema.jsonc` or `.schema.yaml` to use them this way. A `.schema.json` file can be renamed to `.schema.jsonc` as it is.
 
 ## Testing
 
