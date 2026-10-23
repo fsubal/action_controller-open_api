@@ -49,15 +49,18 @@ module ActionController
       end
 
       def schema_to_permit(key, resolved)
-        case resolved["type"]
-        when "object"
+        # Nullable types are expressed as `"type": ["object", "null"]` — the
+        # non-null type decides the permit shape.
+        types = Array(resolved["type"])
+
+        if types.include?("object")
           nested = properties_to_permit_list(resolved["properties"] || {})
           [{ key => nested }]
-        when "array"
+        elsif types.include?("array")
           items = resolved["items"]
           if items
             resolved_items = resolve_ref(items)
-            if resolved_items["type"] == "object"
+            if Array(resolved_items["type"]).include?("object")
               nested = properties_to_permit_list(resolved_items["properties"] || {})
               [{ key => nested }]
             else

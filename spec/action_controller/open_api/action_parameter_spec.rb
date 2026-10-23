@@ -99,6 +99,38 @@ RSpec.describe ActionController::OpenApi::ActionParameter do
         expect(permit_list(schema)).to eq [{ items: [:id, :name] }]
       end
 
+      it "permits nullable nested objects (type: [object, null])" do
+        schema = {
+          "requestBody" => {
+            "content" => {
+              "application/json" => {
+                "schema" => {
+                  "type" => "object",
+                  "properties" => {
+                    "typography" => {
+                      "type" => ["object", "null"],
+                      "properties" => {
+                        "content" => { "type" => "string" },
+                        "font_size" => { "type" => "integer" }
+                      }
+                    },
+                    "tags" => {
+                      "type" => ["array", "null"],
+                      "items" => { "type" => "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        expect(permit_list(schema)).to contain_exactly(
+          { typography: [:content, :font_size] },
+          { tags: [] }
+        )
+      end
+
       it "resolves $ref from $defs" do
         defs = {
           "Item" => {
