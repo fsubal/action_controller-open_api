@@ -29,6 +29,12 @@ RSpec.describe ActionController::OpenApi::SchemaFile do
       expect(parse(text)).to eq({ "a" => [1, 2], "b" => { "c" => 3 } })
     end
 
+    it "keeps commas that follow no value, so malformed JSONC still fails to parse" do
+      ["{,}", "[,]", "[ /* c */ , ]", "[1,,]", '{"a": 1,,}', '{"a":,}'].each do |text|
+        expect { parse(text) }.to raise_error(JSON::ParserError), "expected #{text.inspect} to be rejected"
+      end
+    end
+
     it "leaves comment-like and comma-like text inside strings alone" do
       text = '{ "url": "https://example.com/*x*/", "s": "a,}", "q": "say \\"//hi\\"," }'
 

@@ -33,6 +33,10 @@ module ActionController
         filename.sub(/\A_/, "").sub(EXTENSION_PATTERN, "")
       end
 
+      # Tokens after which a comma separates nothing, so it is not a trailing
+      # comma to drop but an error to keep for JSON.parse (`{,}`, `[1,,]`)
+      NO_VALUE_BEFORE = [nil, "{", "[", ",", ":"].freeze
+
       # Turns JSONC into JSON: drops `//` and `/* */` comments and trailing
       # commas, leaving string contents untouched. Comments become spaces so
       # parse error offsets still point into the original text.
@@ -40,12 +44,15 @@ module ActionController
         out = +""
         i = 0
         pending_comma = nil
+        # The last character of JSON syntax written, ignoring whitespace and comments
+        last_token = nil
         while i < text.length
           char = text[i]
           if char == '"'
             finish = string_end(text, i)
             out << flush(pending_comma) << text[i...finish]
             pending_comma = nil
+            last_token = '"'
             i = finish
           elsif text[i, 2] == "//"
             finish = text.index("\n", i) || text.length
@@ -59,7 +66,13 @@ module ActionController
             i = finish + 2
           elsif char == ","
             out << flush(pending_comma)
-            pending_comma = +","
+            pending_comma = nil
+            if NO_VALUE_BEFORE.include?(last_token)
+              out << char
+            else
+              pending_comma = +","
+            end
+            last_token = ","
             i += 1
           elsif pending_comma && char.match?(/\s/)
             pending_comma << char
@@ -68,10 +81,12 @@ module ActionController
             # a trailing comma: keep its whitespace, drop the comma
             out << pending_comma.sub(",", " ") << char
             pending_comma = nil
+            last_token = char
             i += 1
           else
             out << flush(pending_comma) << char
             pending_comma = nil
+            last_token = char unless char.match?(/\s/)
             i += 1
           end
         end
