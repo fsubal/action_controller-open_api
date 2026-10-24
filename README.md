@@ -238,20 +238,6 @@ bin/rails 'action_controller_openapi:schema:response[items/show]' | quicktype -l
 bin/rails 'action_controller_openapi:schema:request_body[items/create]' | quicktype -l typescript -o create_item_params.ts --src-lang schema
 ```
 
-### Using the schemas as TypeScript types (without code generation)
-
-With TypeScript 7.1+, [json-schema-content-mapper](https://github.com/fsubal/json-schema-content-mapper) lets TypeScript import the schema files directly as types — no generated files to keep in sync:
-
-```ts
-import type * as Show from "../app/views/items/_show.schema.jsonc";
-import type * as Create from "../app/views/items/_create.schema.jsonc";
-
-const item: Show.Response = await (await fetch("/items/1")).json();
-const body: Create.RequestBody = { name: "New item" };
-```
-
-TypeScript does not let content mappers handle files ending in `.json`, so write the schemas as `.schema.jsonc` or `.schema.yaml` to use them this way. A `.schema.json` file can be renamed to `.schema.jsonc` as it is.
-
 ## Testing
 
 Use `assert_response_conforms_to_openapi_schema` to verify API responses match your OpenAPI schemas in tests. It works with both Minitest and RSpec.
