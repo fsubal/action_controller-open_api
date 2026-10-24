@@ -27,6 +27,15 @@ RSpec.describe ActionController::OpenApi::SchemaFinder do
       expect(result).to eq @tmpdir.join("items/_show.schema.json")
     end
 
+    it "finds a .schema.jsonc file" do
+      create_file("items/_show.schema.jsonc")
+      finder = described_class.new([@tmpdir])
+
+      result = finder.find("items", "show")
+
+      expect(result).to eq @tmpdir.join("items/_show.schema.jsonc")
+    end
+
     it "finds a .schema.yaml file" do
       create_file("items/_show.schema.yaml")
       finder = described_class.new([@tmpdir])
@@ -53,6 +62,16 @@ RSpec.describe ActionController::OpenApi::SchemaFinder do
       result = finder.find("items", "show")
 
       expect(result).to eq @tmpdir.join("items/_show.schema.json")
+    end
+
+    it "prefers .schema.jsonc over .schema.yaml" do
+      create_file("items/_show.schema.jsonc")
+      create_file("items/_show.schema.yaml")
+      finder = described_class.new([@tmpdir])
+
+      result = finder.find("items", "show")
+
+      expect(result).to eq @tmpdir.join("items/_show.schema.jsonc")
     end
 
     it "returns nil when no schema file exists" do
@@ -91,13 +110,14 @@ RSpec.describe ActionController::OpenApi::SchemaFinder do
       create_file("items/_show.schema.json")
       create_file("items/_index.schema.json")
       create_file("users/_create.schema.yaml")
+      create_file("users/_update.schema.jsonc")
       finder = described_class.new([@tmpdir])
 
       results = finder.find_all
 
-      expect(results.length).to eq 3
+      expect(results.length).to eq 4
       paths = results.map { |r| "#{r[:controller_path]}##{r[:action_name]}" }
-      expect(paths).to contain_exactly("items#show", "items#index", "users#create")
+      expect(paths).to contain_exactly("items#show", "items#index", "users#create", "users#update")
     end
 
     it "deduplicates schemas across multiple view paths" do

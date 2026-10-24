@@ -20,7 +20,7 @@ bundle install
 
 ### 1. Define schema files in `app/views`
 
-Place `.schema.json` (or `.schema.yaml`) files next to your view templates. The file name must follow the `_<action>.schema.json` convention:
+Place `.schema.json` files (or `.schema.jsonc` / `.schema.yaml` / `.schema.yml`) next to your view templates. The file name must follow the `_<action>.schema.json` convention:
 
 ```
 app/
@@ -31,6 +31,8 @@ app/
       _create.schema.json
       show.json.jbuilder      # your regular view template
 ```
+
+`.schema.jsonc` is JSON that may contain `//` and `/* */` comments and trailing commas. If an action has several schema files, `.schema.json` wins, then `.schema.jsonc`, `.schema.yaml` and `.schema.yml`.
 
 Each schema file describes the **operation** for that controller action — parameters, request body, and responses — following the [OpenAPI 3.0 Operation Object](https://swagger.io/docs/specification/v3_0/paths-and-operations/) format. You don't need to specify the path or HTTP method; those are inferred from Rails routes.
 

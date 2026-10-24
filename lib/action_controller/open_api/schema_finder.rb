@@ -1,15 +1,13 @@
 module ActionController
   module OpenApi
     class SchemaFinder
-      SCHEMA_EXTENSIONS = %w[.schema.json .schema.yaml .schema.yml].freeze
-
       def initialize(view_paths)
         @view_paths = Array(view_paths).map { |p| Pathname(p.to_s) }
       end
 
       def find(controller_path, action_name)
         @view_paths.each do |view_path|
-          SCHEMA_EXTENSIONS.each do |ext|
+          SchemaFile::EXTENSIONS.each do |ext|
             path = view_path.join(controller_path, "_#{action_name}#{ext}")
             return path if path.exist?
           end
@@ -22,12 +20,12 @@ module ActionController
         @view_paths.each do |view_path|
           next unless view_path.exist?
 
-          Dir.glob(view_path.join("**", "_*.schema.{json,yaml,yml}")).each do |file|
+          Dir.glob(view_path.join("**", SchemaFile::GLOB)).each do |file|
             path = Pathname(file)
             relative = path.relative_path_from(view_path)
             controller_path = relative.dirname.to_s
             filename = relative.basename.to_s
-            action_name = filename.sub(/\A_/, "").sub(/\.schema\.(json|ya?ml)\z/, "")
+            action_name = SchemaFile.action_name(filename)
 
             results << {
               path: path,

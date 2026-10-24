@@ -2,7 +2,7 @@
 
 ## Project overview
 
-`action_controller-open_api` is a Rails gem that lets you define OpenAPI operation schemas as `.schema.json` (or `.schema.yaml`) files alongside your view templates in `app/views/`, then validates requests and responses against those schemas at runtime.
+`action_controller-open_api` is a Rails gem that lets you define OpenAPI operation schemas as `.schema.json` (or `.schema.jsonc` / `.schema.yaml` / `.schema.yml`) files alongside your view templates in `app/views/`, then validates requests and responses against those schemas at runtime.
 
 ## Commands
 
@@ -17,7 +17,8 @@
 lib/action_controller/open_api/
 ├── railtie.rb              # Hooks into Rails; includes ControllerMethods
 ├── controller_methods.rb   # around_action :validate_by_openapi_schema!
-├── schema_finder.rb        # Discovers .schema.{json,yaml,yml} in view paths
+├── schema_file.rb          # Schema file extensions and parsing (JSON / JSONC / YAML)
+├── schema_finder.rb        # Discovers .schema.{json,jsonc,yaml,yml} in view paths
 ├── schema_resolver.rb      # Parses and caches schema files
 ├── request_validator.rb    # Validates params + request body against schema
 ├── response_validator.rb   # Validates response body against schema

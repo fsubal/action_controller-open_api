@@ -36,6 +36,20 @@ RSpec.describe ActionController::OpenApi::SchemaResolver do
       expect(result).to eq({ "summary" => "Show item" })
     end
 
+    it "parses and returns a JSONC schema" do
+      create_schema("items/_show.schema.jsonc", <<~JSONC)
+        {
+          // comments are allowed
+          "summary": "Show item", /* and trailing commas */
+        }
+      JSONC
+      resolver = described_class.new
+
+      result = resolver.resolve("items", "show", [@tmpdir])
+
+      expect(result).to eq({ "summary" => "Show item" })
+    end
+
     it "returns nil when no schema exists" do
       resolver = described_class.new
 
